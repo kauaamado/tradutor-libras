@@ -47,7 +47,6 @@ export function WebcamView() {
             borderRadius: 8,
             fontSize: '1.5rem',
             fontWeight: 700,
-            transform: 'scaleX(-1)',
           }}
         >
           {confirmed.label}
@@ -66,7 +65,6 @@ export function WebcamView() {
             padding: '4px 12px',
             borderRadius: 6,
             fontSize: '1rem',
-            transform: 'scaleX(-1)',
           }}
         >
           {current.label}...
