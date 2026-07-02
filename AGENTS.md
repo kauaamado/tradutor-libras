@@ -26,10 +26,12 @@ npm run format   # Prettier
 
 - **Landmarks:** 21 pontos × 3 eixos (X, Y, Z) = 63 valores `number` por mão. Valide que nenhum é `null` antes de alimentar o modelo.
 - **Webcam:** `getUserMedia` com cleanup obrigatório ao desmontar:
+
   ```typescript
   stream.getTracks().forEach(t => t.stop());
   video.srcObject = null;
   ```
+
 - **Modelo TF.js:** Carregue **uma vez** na inicialização (IndexedDB: `indexeddb://sign-model` ou `public/models/`). Nunca recarregue por frame.
 - **Dataset TF.js:** Salve em IndexedDB. Entradas com 63 features (`number[]`) + label (`string`).
 - **Transformers.js:** Detecte WebGPU (`!!navigator.gpu`) antes de carregar o LLM. Se ausente → exiba aviso + ative fallback heurístico (template SVO). Exiba progresso durante download (~500MB+).
