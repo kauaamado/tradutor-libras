@@ -1,6 +1,6 @@
 ---
 description: Revisor do Tradutor-LIBRAS. Revisa código, verifica conformidade com specs/AGENTS.md, aponta violações arquiteturais e de estilo. Use para code review e validação de entregas.
-mode: subagent
+mode: all
 permission:
   edit: deny
   bash: ask

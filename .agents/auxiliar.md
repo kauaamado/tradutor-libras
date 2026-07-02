@@ -1,6 +1,6 @@
 ---
 description: Implementador do Tradutor-LIBRAS. Escreve código, implementa features, corrige bugs. Segue AGENTS.md, specs.md, design.md e PLAN.md. Use para tarefas de implementação no projeto.
-mode: subagent
+mode: all
 permission:
   edit: allow
   bash: allow
