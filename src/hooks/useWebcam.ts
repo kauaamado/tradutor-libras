@@ -16,6 +16,7 @@ interface UseWebcamReturn {
 export function useWebcam(): UseWebcamReturn {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const mountedRef = useRef(true);
   const [isActive, setIsActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,7 +29,9 @@ export function useWebcam(): UseWebcamReturn {
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
-    setIsActive(false);
+    if (mountedRef.current) {
+      setIsActive(false);
+    }
   }, []);
 
   const start = useCallback(async () => {
@@ -40,6 +43,12 @@ export function useWebcam(): UseWebcamReturn {
         audio: false,
       });
 
+      // Se desmontou durante getUserMedia, libera o stream e sai
+      if (!mountedRef.current) {
+        stream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+
       streamRef.current = stream;
 
       if (videoRef.current) {
@@ -47,9 +56,19 @@ export function useWebcam(): UseWebcamReturn {
         await videoRef.current.play();
       }
 
-      setIsActive(true);
-      console.info('[Webcam] Stream iniciado com sucesso.');
+      if (mountedRef.current) {
+        setIsActive(true);
+        console.info('[Webcam] Stream iniciado com sucesso.');
+      }
     } catch (err) {
+      // AbortError é esperado em StrictMode (monta→desmonta→monta em dev)
+      const isAbortError =
+        err instanceof DOMException && err.name === 'AbortError';
+
+      if (!mountedRef.current || isAbortError) {
+        return;
+      }
+
       const message = err instanceof Error ? err.message : 'Erro ao acessar webcam';
       console.error('[Webcam] Erro:', message);
       setError(message);
@@ -58,7 +77,9 @@ export function useWebcam(): UseWebcamReturn {
 
   // Cleanup ao desmontar
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
+      mountedRef.current = false;
       stop();
     };
   }, [stop]);

@@ -81,6 +81,7 @@ export function HandCanvas({ trackingResult, videoRef }: HandCanvasProps) {
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
+        transform: 'scaleX(-1)', // espelhar para acompanhar o vídeo
       }}
     />
   );
