@@ -3,14 +3,14 @@
 Caros alunos,
 Como informado em aula, vamos iniciar nosso último trabalho da disciplina, que consiste em desenvolver um projeto completo de Frontend e fazer o deploy no Github Pages. Esse projeto poderá ser desenvolvido em dupla e deverá ser apresentado em sala de aula.
 
-Etapas importantes que devem ser apresentadas: 
+Etapas importantes que devem ser apresentadas:
 1- O repositório do Github, com README.md explicando o que é o projeto e como executá-lo;
 2- Estrutura de componentes;
 3- Ideia de design do frontend;
 4- Arquivos utilizados para guiar o agente no desenvolvimento (AGENTS.md, skills, etc);
 5- Página onde o projeto foi deployado no Github Pages.
 
-Cada etapa entregue vale 2 pontos durante a apresentação. 
+Cada etapa entregue vale 2 pontos durante a apresentação.
 
 A entrega no Google Classroom deve ser realizada no dia anterior à apresentação, informando o link para o repositório do projeto.
 

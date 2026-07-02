@@ -36,5 +36,8 @@ coverage/
 # TypeScript
 *.tsbuildinfo
 
+# OpenCode local config (agentes copiados de .agents/)
+.opencode/
+
 # IndexedDB local state (não commitar dados de treino do browser)
 *.idb

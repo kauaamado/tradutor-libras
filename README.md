@@ -90,9 +90,24 @@ npx gh-pages -d dist
 
 A aplicação é servida em `https://<seu-usuario>.github.io/tradutor-libras/`.
 
-## Arquivos de Agente
+## Agentes OpenCode
 
-O desenvolvimento deste projeto utiliza agentes IA guiados pelos seguintes arquivos de especificação:
+O projeto inclui definições de agentes OpenCode em `.agents/`:
+
+- `auxiliar` — Implementador: escreve código, implementa features, corrige bugs
+- `revisor` — Revisor: code review, verifica conformidade com specs
+
+### Para ativar os agentes
+
+```bash
+mkdir -p .opencode/agent && cp .agents/*.md .opencode/agent/
+```
+
+Reinicie o OpenCode após copiar. A pasta `.opencode/` é gitignored (config local).
+
+## Arquivos de Especificação
+
+O desenvolvimento utiliza os seguintes arquivos de referência:
 
 - `AGENTS.md` — Regras de operação, padrões de código e convenções
 - `PLAN.md` — Plano de implementação faseado
