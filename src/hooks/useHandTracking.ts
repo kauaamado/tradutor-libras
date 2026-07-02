@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { initHandLandmarker, detectHands } from '@/modules/capture/handTracker';
+import { initHandLandmarker, detectHands, validateLandmarks } from '@/modules/capture/handTracker';
 import type { HandTrackingResult } from '@/types/hand';
 
 interface UseHandTrackingReturn {
@@ -11,7 +11,7 @@ interface UseHandTrackingReturn {
 
 /**
  * Hook que processa frames de vídeo via HandLandmarker em loop (requestAnimationFrame).
- * Retorna os landmarks detectados em tempo real.
+ * Retorna os landmarks detectados em tempo real, filtrando mãos com landmarks inválidos.
  *
  * @param videoRef - Referência ao elemento <video> da webcam.
  * @param isActive - Se o stream da webcam está ativo.
@@ -47,7 +47,27 @@ export function useHandTracking(
       if (video && video.readyState >= 2) {
         const timestamp = performance.now();
         const detection = detectHands(video, timestamp);
-        setResult(detection);
+
+        if (detection) {
+          // Filtra mãos cujos landmarks são inválidos (RF-02: validar null antes de processar)
+          const validIndices = detection.landmarks
+            .map((hand, i) => (validateLandmarks(hand) ? i : -1))
+            .filter((i) => i >= 0);
+
+          if (validIndices.length === 0) {
+            setResult(null);
+          } else {
+            setResult({
+              landmarks: validIndices.map((i) => detection.landmarks[i]),
+              worldLandmarks: validIndices.map(
+                (i) => detection.worldLandmarks[i] ?? detection.landmarks[i],
+              ),
+              handedness: validIndices.map((i) => detection.handedness[i]),
+            });
+          }
+        } else {
+          setResult(null);
+        }
       }
       rafRef.current = requestAnimationFrame(loop);
     };

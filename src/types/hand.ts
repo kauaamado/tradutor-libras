@@ -11,15 +11,33 @@ export type HandLandmarks = HandLandmark[];
 /** Resultado do HandLandmarker para um frame. */
 export interface HandTrackingResult {
   landmarks: HandLandmarks[];
+  worldLandmarks: HandLandmarks[];
   handedness: ('Left' | 'Right')[];
 }
 
-/** Conexões do esqueleto da mão (índices dos pares de landmarks). */
-export const HAND_CONNECTIONS: [number, number][] = [
-  [0, 1], [1, 2], [2, 3], [3, 4], // Polegar
-  [0, 5], [5, 6], [6, 7], [7, 8], // Indicador
-  [5, 9], [9, 10], [10, 11], [11, 12], // Médio
-  [9, 13], [13, 14], [14, 15], [15, 16], // Anelar
-  [13, 17], [17, 18], [18, 19], [19, 20], // Mínimo
-  [0, 17], // Palma
-];
+/** Estado de um dedo individual. */
+export type FingerState = 'extended' | 'folded' | 'curled';
+
+/** Estado de todos os 5 dedos de uma mão. */
+export interface FingerStates {
+  thumb: FingerState;
+  index: FingerState;
+  middle: FingerState;
+  ring: FingerState;
+  pinky: FingerState;
+}
+
+/** Resultado da classificação de um sinal. */
+export interface ClassificationResult {
+  label: string | null;
+  confidence: number;
+}
+
+/** Índices dos landmarks de cada dedo (ponta → base). */
+export const FINGER_LANDMARKS = {
+  thumb: [4, 3, 2, 1],
+  index: [8, 7, 6, 5],
+  middle: [12, 11, 10, 9],
+  ring: [16, 15, 14, 13],
+  pinky: [20, 19, 18, 17],
+} as const;

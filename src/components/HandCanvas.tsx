@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
-import { HAND_CONNECTIONS, type HandTrackingResult } from '@/types/hand';
+import { HAND_CONNECTIONS } from '@/modules/capture/handTracker';
+import type { HandTrackingResult } from '@/types/hand';
 
 interface HandCanvasProps {
   trackingResult: HandTrackingResult | null;
@@ -65,7 +66,7 @@ export function HandCanvas({ trackingResult, videoRef }: HandCanvasProps) {
       ctx.fillStyle = COLOR_LANDMARK;
       for (const point of hand) {
         ctx.beginPath();
-        ctx.arc(point.x * canvas.width, point.y * canvas.height, 4, 0, Math.PI * 2);
+        ctx.arc(point.x * canvas.width, point.y * canvas.height, 5, 0, Math.PI * 2);
         ctx.fill();
       }
     }

@@ -1,6 +1,6 @@
 import { WebcamView } from '@/components/WebcamView';
 
-export default function App() {
+export function App() {
   return (
     <div style={{ backgroundColor: '#000', minHeight: '100vh', color: '#fff' }}>
       <header style={{ padding: '1rem', textAlign: 'center' }}>

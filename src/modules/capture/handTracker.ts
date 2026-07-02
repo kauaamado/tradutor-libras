@@ -6,38 +6,65 @@ import {
 
 import type { HandTrackingResult, HandLandmarks } from '@/types/hand';
 
+/** Versão do @mediapipe/tasks-vision — deve acompanhar o package.json. */
+const MEDIAPIPE_VERSION = '0.10.35';
+
+/** URL do CDN para os arquivos WASM do MediaPipe. */
+const WASM_CDN_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MEDIAPIPE_VERSION}/wasm`;
+
+/** URL do modelo pré-treinado de hand landmarker. */
+const MODEL_URL =
+  'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
+
+/** Conexões do esqueleto da mão (índices dos pares de landmarks). */
+export const HAND_CONNECTIONS: [number, number][] = [
+  [0, 1], [1, 2], [2, 3], [3, 4], // Polegar
+  [0, 5], [5, 6], [6, 7], [7, 8], // Indicador
+  [5, 9], [9, 10], [10, 11], [11, 12], // Médio
+  [9, 13], [13, 14], [14, 15], [15, 16], // Anelar
+  [13, 17], [17, 18], [18, 19], [19, 20], // Mínimo
+  [0, 17], // Palma
+];
+
 let landmarker: HandLandmarker | null = null;
+let initPromise: Promise<void> | null = null;
 
 /**
  * Carrega o HandLandmarker do MediaPipe (WASM) uma única vez.
- * Usa CDN jsdelivr para os arquivos WASM.
+ * Usa cache de Promise para evitar race condition em React StrictMode.
  */
-export async function initHandLandmarker(): Promise<void> {
+export function initHandLandmarker(): Promise<void> {
   if (landmarker) {
-    console.info('[HandTracker] HandLandmarker já carregado.');
-    return;
+    return Promise.resolve();
   }
 
-  try {
-    const vision = await FilesetResolver.forVisionTasks(
-      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm',
-    );
+  if (initPromise) {
+    return initPromise;
+  }
 
-    landmarker = await HandLandmarker.createFromOptions(vision, {
-      baseOptions: {
-        modelAssetPath:
-          'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
-        delegate: 'GPU',
-      },
-      runningMode: 'VIDEO',
-      numHands: 2,
+  initPromise = doInit()
+    .catch((error) => {
+      console.error('[HandTracker] Erro ao carregar HandLandmarker:', error);
+      initPromise = null; // permite retry em caso de falha
+      throw error;
     });
 
-    console.info('[HandTracker] HandLandmarker carregado com sucesso.');
-  } catch (error) {
-    console.error('[HandTracker] Erro ao carregar HandLandmarker:', error);
-    throw error;
-  }
+  return initPromise;
+}
+
+async function doInit(): Promise<void> {
+  const vision = await FilesetResolver.forVisionTasks(WASM_CDN_URL);
+
+  landmarker = await HandLandmarker.createFromOptions(vision, {
+    baseOptions: {
+      modelAssetPath: MODEL_URL,
+      delegate: 'GPU',
+    },
+    runningMode: 'VIDEO',
+    numHands: 2,
+  });
+
+  console.info('[HandTracker] HandLandmarker carregado com sucesso.');
 }
 
 /**
@@ -52,7 +79,9 @@ export function detectHands(
   timestamp: number,
 ): HandTrackingResult | null {
   if (!landmarker) {
-    console.warn('[HandTracker] HandLandmarker não inicializado. Chame initHandLandmarker() primeiro.');
+    console.warn(
+      '[HandTracker] HandLandmarker não inicializado. Chame initHandLandmarker() primeiro.',
+    );
     return null;
   }
 
@@ -63,11 +92,13 @@ export function detectHands(
   }
 
   const landmarks: HandLandmarks[] = result.landmarks as HandLandmarks[];
+  const worldLandmarks: HandLandmarks[] =
+    (result.worldLandmarks as HandLandmarks[]) ?? [];
   const handedness = result.handedness.map(
     (h) => (h[0].categoryName === 'Left' ? 'Left' : 'Right') as 'Left' | 'Right',
   );
 
-  return { landmarks, handedness };
+  return { landmarks, worldLandmarks, handedness };
 }
 
 /**
