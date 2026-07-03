@@ -41,3 +41,6 @@ coverage/
 
 # IndexedDB local state (não commitar dados de treino do browser)
 *.idb
+
+# Dataset local (não commitar dados coletados)
+dataset-*.json
