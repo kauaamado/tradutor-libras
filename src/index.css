@@ -556,6 +556,28 @@ button {
   opacity: 0.5;
 }
 
+/* --- Frase / Tradução --- */
+
+.phrase-loading {
+  color: var(--color-loading);
+  font-weight: 500;
+}
+
+.phrase-result {
+  color: var(--color-text);
+}
+
+.phrase-result strong {
+  font-weight: 600;
+  color: #00ff88;
+}
+
+.phrase-fallback {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 0.25rem;
+}
+
 @media (max-width: 640px) {
   .app-header {
     width: 100%;
