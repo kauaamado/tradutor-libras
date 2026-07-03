@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 
 import { useWebcam } from '@/hooks/useWebcam';
 import { useHandTracking } from '@/hooks/useHandTracking';
@@ -26,13 +26,13 @@ export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
     }
   }, [result, onTrackingUpdate]);
 
-  const handleCameraToggle = () => {
+  const handleCameraToggle = useCallback(() => {
     if (isActive || isStarting) {
       stop();
       return;
     }
     void start();
-  };
+  }, [isActive, isStarting, start, stop]);
 
   return (
     <section className="camera-shell" aria-label="Área de tradução por webcam">
