@@ -81,20 +81,15 @@ O sistema será dividido em 4 módulos principais, seguindo Clean Architecture:
 * [x] Manter fila de palavras detectadas (`useReducer` ou `useState`).
 * [x] **Spec de Aceitação:** O sistema deve exibir a palavra correta de forma estável quando o usuário fizer um dos sinais treinados na Fase 2.
 
-### Fase 5: Integração com LLM (Transformers.js) para Frases
+### Fase 5: Tradução Heurística (Palavras → Frase)
 
-**Objetivo:** Transformar sinais isolados em uma frase natural.
+**Objetivo:** Transformar sinais isolados em uma frase simples.
 
 * [x] Criar módulo `modules/nlp/llmClient.ts` e hook `useTranslator.ts`.
-* [x] Implementar detecção de suporte WebGPU (`navigator.gpu`).
-* [x] Se WebGPU disponível, carregar modelo de texto via Transformers.js (`pipeline('text-generation', ...)`).
-* [x] Exibir indicador de carregamento (spinner + barra de progresso) durante download do modelo (~500MB-1GB).
-* [x] Se WebGPU indisponível, exibir aviso e ativar modo heurístico de fallback (montagem de frase por template SVO).
-* [x] Criar gatilho para finalizar a frase (botão "Traduzir" na UI ou tecla Enter).
-* [x] Quando o gatilho for acionado, montar prompt e passar para o pipeline do Transformers.js.
-* [x] **Prompt Base:** `"Você é um tradutor de LIBRAS. Transforme as seguintes palavras extraídas de sinais em uma frase fluente, natural e gramaticalmente correta em {idioma}. Retorne APENAS a frase traduzida, sem explicações. Palavras: {lista_palavras}"`.
-* [x] Exibir a frase final no componente `PhraseDisplay.tsx`.
-* [x] **Spec de Aceitação:** O sistema deve receber um array de strings estáticas, processar via Transformers.js e retornar uma frase contínua e correta em português.
+* [x] Implementar `heuristicTranslate`: junta palavras, lowercase, capitaliza primeira, adiciona ponto.
+* [x] Criar gatilho para finalizar a frase (botão "Traduzir" na UI).
+* [x] Exibir a frase final no componente de frase.
+* [x] **Spec de Aceitação:** O sistema deve receber um array de strings e retornar uma frase capitalizada com ponto final.
 
 ### Fase 6: Deploy no GitHub Pages
 
@@ -104,7 +99,7 @@ O sistema será dividido em 4 módulos principais, seguindo Clean Architecture:
 * [x] Workflow: `npm install --ignore-scripts` → `npm run build` → upload `dist/` para GitHub Pages via `actions/deploy-pages@v4`.
 * [x] Verificar que `vite.config.ts` tem `base: '/tradutor-libras/'` para servir assets corretamente no subpath.
 * [x] Configurar `public/.nojekyll` + `actions/configure-pages@v5` (app single-page sem client-side routing, dispensa 404.html).
-* [x] **Spec de Aceitação:** A aplicação deve carregar completamente em `https://kauaamado.github.io/tradutor-libras/`, com webcam, MediaPipe, TF.js e Transformers.js funcionais em ambiente de produção.
+* [x] **Spec de Aceitação:** A aplicação deve carregar completamente em `https://kauaamado.github.io/tradutor-libras/`, com webcam, MediaPipe e TF.js funcionais em ambiente de produção, sem dependência de IA externa.
 
 ---
 
