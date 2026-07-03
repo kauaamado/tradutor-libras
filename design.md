@@ -44,6 +44,7 @@ A aplicação ocupa a viewport inteira com o feed da webcam como plano de fundo.
 | `ControlBar.tsx` | Barra inferior de controles | Botões: Limpar, Traduzir, Sair |
 | `ModelStatus.tsx` | Indicador de status do modelo | Carregamento, acurácia, WebGPU disponível |
 | `DataCollectorUI.tsx` | UI de coleta de dados | Input label, botão gravar, contador de amostras |
+| `TrainingPanel.tsx` | UI de treinamento do modelo TF.js | Botão treinar, barra de progresso, métricas, exportar modelo |
 
 ### 2.2 Hooks Customizados
 
@@ -52,6 +53,7 @@ A aplicação ocupa a viewport inteira com o feed da webcam como plano de fundo.
 | `useWebcam()` | Gerencia stream da webcam | `navigator.mediaDevices` |
 | `useHandTracking()` | Processa frames via HandLandmarker, retorna landmarks | `HandTracker` (module) |
 | `useDataset()` | CRUD do dataset no IndexedDB | `DataCollector` (module) |
+| `useTraining()` | Treinamento do modelo TF.js (carregar, treinar, salvar, exportar) | `ModelTrainer` (module) |
 | `useClassifier()` | Carrega modelo TF.js e faz predições | `SignClassifier` (module) |
 | `useTranslator()` | Gerencia fila de palavras + LLM | `LLMClient` (module) |
 | `useWebGPU()` | Detecta suporte WebGPU | `navigator.gpu` |

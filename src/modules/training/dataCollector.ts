@@ -160,6 +160,27 @@ export async function clearDataset(): Promise<void> {
   });
 }
 
+/** Importa entradas em lote (ex.: de JSON carregado pelo usuário). */
+export async function importDataset(entries: DatasetEntry[]): Promise<number> {
+  const db = await openDB();
+  const tx = db.transaction(STORE_NAME, 'readwrite');
+  const store = tx.objectStore(STORE_NAME);
+
+  let count = 0;
+  for (const entry of entries) {
+    store.add({ features: entry.features, label: entry.label });
+    count++;
+  }
+
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => {
+      console.info(`[DataCollector] Importadas ${count} entradas.`);
+      resolve(count);
+    };
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
 /** Exporta o dataset como JSON (retorna a string). */
 export async function exportDataset(): Promise<string> {
   const samples = await getAllSamples();

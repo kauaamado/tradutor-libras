@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import { useWebcam } from '@/hooks/useWebcam';
 import { useHandTracking } from '@/hooks/useHandTracking';
 import { useClassifier } from '@/hooks/useClassifier';
@@ -17,10 +19,12 @@ export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
   const { result, isReady, error: trackingError } = useHandTracking(videoRef, isActive);
   const { confirmed, current } = useClassifier(result);
 
-  // Notifica o pai sobre mudanças no trackingResult (para DataCollectorPanel)
-  if (onTrackingUpdate) {
-    onTrackingUpdate(result);
-  }
+  // Notifica o pai sobre mudanças no trackingResult (para DataCollectorPanel).
+  // Usa useEffect em vez do corpo do render para evitar setState
+  // durante o render no React 19 StrictMode.
+  useEffect(() => {
+    onTrackingUpdate?.(result);
+  }, [result, onTrackingUpdate]);
 
   const handleCameraToggle = () => {
     if (isActive || isStarting) {
