@@ -9,6 +9,7 @@ import type { HandTrackingResult } from '@/types/hand';
 export function App() {
   const [trackingResult, setTrackingResult] =
     useState<HandTrackingResult | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleTrackingUpdate = useCallback(
     (result: HandTrackingResult | null) => {
@@ -23,14 +24,28 @@ export function App() {
         <h1>Tradutor LIBRAS</h1>
       </header>
       <AlphabetCheatSheet />
+
+      <button
+        className="toggle-advanced"
+        type="button"
+        onClick={() => setShowAdvanced((p) => !p)}
+        aria-expanded={showAdvanced}
+      >
+        {showAdvanced ? '▾ Ocultar' : '▸ Mostrar'} ferramentas
+      </button>
+
       <main className="app-main">
         <WebcamView onTrackingUpdate={handleTrackingUpdate} />
-        <DataCollectorPanel
-          trackingResult={trackingResult}
-          isActive={trackingResult !== null}
-          isReady={true}
-        />
-        <TrainingPanel />
+        {showAdvanced && (
+          <div className="advanced-section">
+            <DataCollectorPanel
+              trackingResult={trackingResult}
+              isActive={trackingResult !== null}
+              isReady={true}
+            />
+            <TrainingPanel />
+          </div>
+        )}
       </main>
     </div>
   );
