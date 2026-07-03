@@ -37,7 +37,7 @@ export function App() {
           current={current}
           onToggleCamera={handleCameraToggle}
         />
-        <DataCollectorPanel trackingResult={result} />
+        <DataCollectorPanel trackingResult={result} isActive={isActive} isReady={isReady} />
       </main>
     </div>
   );

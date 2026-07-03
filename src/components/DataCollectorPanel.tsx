@@ -5,9 +5,11 @@ import type { HandTrackingResult } from '@/types/hand';
 
 interface DataCollectorPanelProps {
   trackingResult: HandTrackingResult | null;
+  isActive: boolean;
+  isReady: boolean;
 }
 
-export function DataCollectorPanel({ trackingResult }: DataCollectorPanelProps) {
+export function DataCollectorPanel({ trackingResult, isActive, isReady }: DataCollectorPanelProps) {
   const [selectedLabel, setSelectedLabel] = useState<string>(COLLECTABLE_LETTERS[0]);
 
   const {
@@ -98,11 +100,17 @@ export function DataCollectorPanel({ trackingResult }: DataCollectorPanelProps) 
         </div>
       )}
 
-      {!trackingResult && (
-        <p className="collector-hint">Ligue a câmera para começar a coletar.</p>
+      {!isActive && (
+        <p className="collector-hint">Ligue a câmera no botão acima para começar a coletar.</p>
       )}
-      {trackingResult && trackingResult.landmarks.length === 0 && (
+      {isActive && !isReady && (
+        <p className="collector-hint">Carregando modelo de rastreamento...</p>
+      )}
+      {isActive && isReady && trackingResult && trackingResult.landmarks.length === 0 && (
         <p className="collector-hint">Posicione a mão na frente da câmera.</p>
+      )}
+      {isActive && isReady && trackingResult && trackingResult.landmarks.length > 0 && !isCollecting && (
+        <p className="collector-hint" style={{ color: '#00cc00' }}>Mão detectada. Clique em Gravar.</p>
       )}
     </section>
   );
