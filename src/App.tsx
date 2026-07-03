@@ -1,22 +1,16 @@
-import { useWebcam } from '@/hooks/useWebcam';
-import { useHandTracking } from '@/hooks/useHandTracking';
-import { useClassifier } from '@/hooks/useClassifier';
+import { useState, useCallback } from 'react';
+
 import { WebcamView } from '@/components/WebcamView';
 import { AlphabetCheatSheet } from '@/components/AlphabetCheatSheet';
 import { DataCollectorPanel } from '@/components/DataCollectorPanel';
+import type { HandTrackingResult } from '@/types/hand';
 
 export function App() {
-  const { videoRef, isActive, isStarting, error, start, stop } = useWebcam();
-  const { result, isReady, error: trackingError } = useHandTracking(videoRef, isActive);
-  const { confirmed, current } = useClassifier(result);
+  const [trackingResult, setTrackingResult] = useState<HandTrackingResult | null>(null);
 
-  const handleCameraToggle = () => {
-    if (isActive || isStarting) {
-      stop();
-      return;
-    }
-    void start();
-  };
+  const handleTrackingUpdate = useCallback((result: HandTrackingResult | null) => {
+    setTrackingResult(result);
+  }, []);
 
   return (
     <div className="app-shell">
@@ -25,19 +19,8 @@ export function App() {
       </header>
       <AlphabetCheatSheet />
       <main className="app-main">
-        <WebcamView
-          videoRef={videoRef}
-          isActive={isActive}
-          isStarting={isStarting}
-          error={error}
-          trackingResult={result}
-          isReady={isReady}
-          trackingError={trackingError}
-          confirmed={confirmed}
-          current={current}
-          onToggleCamera={handleCameraToggle}
-        />
-        <DataCollectorPanel trackingResult={result} isActive={isActive} isReady={isReady} />
+        <WebcamView onTrackingUpdate={handleTrackingUpdate} />
+        <DataCollectorPanel trackingResult={trackingResult} isActive={trackingResult !== null} isReady={true} />
       </main>
     </div>
   );
