@@ -7,7 +7,12 @@ function fmtAcc(v: number): string {
   return (v * 100).toFixed(1) + '%';
 }
 
-export function TrainingPanel() {
+interface TrainingPanelProps {
+  /** Callback disparado após treino concluído com sucesso. */
+  onModelTrained?: () => void;
+}
+
+export function TrainingPanel({ onModelTrained }: TrainingPanelProps) {
   const {
     modelStatus,
     isTraining,
@@ -26,7 +31,10 @@ export function TrainingPanel() {
   );
 
   return (
-    <section className="training-panel" aria-label="Treinamento do modelo de ML">
+    <section
+      className="training-panel"
+      aria-label="Treinamento do modelo de ML"
+    >
       <div className="training-header">
         <h2>Treinamento</h2>
         {modelInfo.trained && (
@@ -41,8 +49,9 @@ export function TrainingPanel() {
         {modelStatus === 'none' && <p>Nenhum modelo treinado ainda.</p>}
         {modelStatus === 'trained' && result && (
           <p>
-            Modelo treinado — Acurácia teste: <strong>{fmtAcc(result.accuracy)}</strong>
-            {' '}(validação: {fmtAcc(result.valAccuracy)}, {result.epochs} épocas)
+            Modelo treinado — Acurácia teste:{' '}
+            <strong>{fmtAcc(result.accuracy)}</strong> (validação:{' '}
+            {fmtAcc(result.valAccuracy)}, {result.epochs} épocas)
           </p>
         )}
         {modelStatus === 'error' && (
@@ -62,8 +71,14 @@ export function TrainingPanel() {
             max={progress.totalEpochs}
           />
           <div className="training-metrics">
-            <span>Treino: loss {progress.loss.toFixed(3)} / acc {fmtAcc(progress.accuracy)}</span>
-            <span>Val: loss {progress.valLoss.toFixed(3)} / acc {fmtAcc(progress.valAccuracy)}</span>
+            <span>
+              Treino: loss {progress.loss.toFixed(3)} / acc{' '}
+              {fmtAcc(progress.accuracy)}
+            </span>
+            <span>
+              Val: loss {progress.valLoss.toFixed(3)} / acc{' '}
+              {fmtAcc(progress.valAccuracy)}
+            </span>
           </div>
         </div>
       )}
@@ -73,7 +88,13 @@ export function TrainingPanel() {
         <button
           type="button"
           className="primary-button"
-          onClick={() => { void train(); }}
+          onClick={() => {
+            void train().then(() => {
+              // Só chama onModelTrained se o treino foi bem‑sucedido
+              // (modelStatus muda para 'trained' dentro de train)
+              onModelTrained?.();
+            });
+          }}
           disabled={isTraining}
         >
           {isTraining ? 'Treinando...' : 'Treinar Modelo'}
@@ -82,7 +103,9 @@ export function TrainingPanel() {
         <button
           type="button"
           className="primary-button"
-          onClick={() => { void exportModel(); }}
+          onClick={() => {
+            void exportModel();
+          }}
           disabled={modelStatus !== 'trained'}
         >
           Exportar Modelo

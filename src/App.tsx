@@ -7,10 +7,21 @@ import { TrainingPanel } from '@/components/TrainingPanel';
 import type { HandTrackingResult } from '@/types/hand';
 
 export function App() {
-  const [trackingResult, setTrackingResult] = useState<HandTrackingResult | null>(null);
+  const [trackingResult, setTrackingResult] =
+    useState<HandTrackingResult | null>(null);
+  const [modelVersion, setModelVersion] = useState(0);
 
-  const handleTrackingUpdate = useCallback((result: HandTrackingResult | null) => {
-    setTrackingResult(result);
+  const handleTrackingUpdate = useCallback(
+    (result: HandTrackingResult | null) => {
+      setTrackingResult(result);
+    },
+    [],
+  );
+
+  /** Chamado pelo TrainingPanel após treino bem‑sucedido.
+   *  Incrementa modelVersion para forçar recarga do modelo no useClassifier. */
+  const handleModelTrained = useCallback(() => {
+    setModelVersion((v) => v + 1);
   }, []);
 
   return (
@@ -20,13 +31,16 @@ export function App() {
       </header>
       <AlphabetCheatSheet />
       <main className="app-main">
-        <WebcamView onTrackingUpdate={handleTrackingUpdate} />
+        <WebcamView
+          onTrackingUpdate={handleTrackingUpdate}
+          modelVersion={modelVersion}
+        />
         <DataCollectorPanel
           trackingResult={trackingResult}
           isActive={trackingResult !== null}
           isReady={true}
         />
-        <TrainingPanel />
+        <TrainingPanel onModelTrained={handleModelTrained} />
       </main>
     </div>
   );
