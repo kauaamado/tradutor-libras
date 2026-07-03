@@ -40,6 +40,7 @@ npm run format   # Prettier
 ## Workflow
 
 - **GitFlow:** Branches `feat/*` a partir de `dev`; PR para `dev`. **Nunca PR direto para `main`.**
+- **Squash and Merge:** Sempre use squash and merge ao mergear PRs para manter histórico linear.
 - **Commits:** Conventional Commits em **PT-BR**. Ex: `feat(captura): adiciona HandLandmarker via tasks-vision`.
 - **SDD:** Uma fase por vez. Não implemente a Fase N+1 sem a N estar validada.
 - **Vite base:** O `vite.config.ts` DEVE ter `base: '/tradutor-libras/'` — sem isso, assets quebram no GitHub Pages.

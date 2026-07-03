@@ -34,14 +34,14 @@ O sistema será dividido em 4 módulos principais, seguindo Clean Architecture:
 
 **Objetivo:** Configurar o ambiente web e capturar os landmarks das mãos com sucesso.
 
-* [ ] Inicializar projeto com Vite + React + TypeScript.
-* [ ] Configurar `vite.config.ts` com `base: '/tradutor-libras/'`, path alias `@/`, e GitFlow (branch `feat/setup-webstack`).
-* [ ] Configurar ESLint + Prettier com regras TypeScript.
-* [ ] Criar estrutura de pastas (`src/components/`, `src/modules/`, `src/hooks/`, `src/types/`).
-* [ ] Implementar captura de webcam via `navigator.mediaDevices.getUserMedia` com stream em `<video>`.
-* [ ] Integrar `@mediapipe/tasks-vision` HandLandmarker para processar cada frame e desenhar os landmarks em Canvas overlay.
-* [ ] Criar componente `WebcamView.tsx` com cleanup correto (parar tracks ao desmontar).
-* [ ] **Spec de Aceitação:** A webcam deve abrir sem lag, e as conexões (esqueleto) da mão devem ser desenhadas corretamente sobre a mão do usuário em tempo real, com o Canvas sobreposto ao vídeo.
+* [x] Inicializar projeto com Vite + React + TypeScript.
+* [x] Configurar `vite.config.ts` com `base: '/tradutor-libras/'`, path alias `@/`, e GitFlow (branch `feat/setup-webstack`).
+* [x] Configurar ESLint + Prettier com regras TypeScript.
+* [x] Criar estrutura de pastas (`src/components/`, `src/modules/`, `src/hooks/`, `src/types/`).
+* [x] Implementar captura de webcam via `navigator.mediaDevices.getUserMedia` com stream em `<video>`.
+* [x] Integrar `@mediapipe/tasks-vision` HandLandmarker para processar cada frame e desenhar os landmarks em Canvas overlay.
+* [x] Criar componente `WebcamView.tsx` com cleanup correto (parar tracks ao desmontar).
+* [x] **Spec de Aceitação:** A webcam deve abrir sem lag, e as conexões (esqueleto) da mão devem ser desenhadas corretamente sobre a mão do usuário em tempo real, com o Canvas sobreposto ao vídeo.
 
 ### Fase 2: Coleta de Dados para Treinamento (Dataset)
 
