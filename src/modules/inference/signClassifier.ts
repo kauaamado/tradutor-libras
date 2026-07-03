@@ -86,15 +86,15 @@ export function classifySign(landmarks: HandLandmarks): ClassificationResult {
 
   // --- GRUPO 1: DEDOS ÚNICOS (muito específicos) ---
 
-  // I: só mínimo estendido
-  if (f.pinky === 'extended' && f.index === 'folded' && f.middle === 'folded' && f.ring === 'folded') {
-    return { label: 'I', confidence: 0.9 };
-  }
-
-  // Y: polegar + mínimo estendidos, demais dobrados
+  // Y: polegar + mínimo estendidos, demais dobrados (antes de I — subconjunto)
   if (f.thumb === 'extended' && f.pinky === 'extended' &&
       f.index === 'folded' && f.middle === 'folded' && f.ring === 'folded') {
     return { label: 'Y', confidence: 0.9 };
+  }
+
+  // I: só mínimo estendido
+  if (f.pinky === 'extended' && f.index === 'folded' && f.middle === 'folded' && f.ring === 'folded') {
+    return { label: 'I', confidence: 0.9 };
   }
 
   // L: indicador + polegar estendidos, demais dobrados
