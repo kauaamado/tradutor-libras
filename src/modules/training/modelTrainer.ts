@@ -257,12 +257,33 @@ export async function trainModel(
   let lastValAcc = 0;
   let trainedEpochs = 0;
 
+  // Early stopping manual (tf.callbacks.earlyStopping tem bug no TF.js 4.x:
+  // "this.getMonitorValue is not a function")
+  let bestValLoss = Infinity;
+  let patienceCount = 0;
+  const patienceLimit = 10;
+
   const onEpochEnd: tf.CustomCallbackArgs = {
     onEpochEnd: async (epoch, logs) => {
       if (!logs) return;
       trainedEpochs = epoch + 1;
       lastValLoss = logs.val_loss;
       lastValAcc = logs.val_acc;
+
+      // Early stopping: se val_loss não melhorar por patienceLimit épocas, para
+      if (logs.val_loss < bestValLoss) {
+        bestValLoss = logs.val_loss;
+        patienceCount = 0;
+      } else {
+        patienceCount++;
+        if (patienceCount >= patienceLimit) {
+          model.stopTraining = true;
+          console.info(
+            `[ModelTrainer] Early stopping ativado na época ${epoch + 1} (val_loss sem melhora por ${patienceLimit} épocas).`,
+          );
+        }
+      }
+
       onProgress?.({
         epoch: epoch + 1,
         totalEpochs: epochs,
@@ -279,10 +300,7 @@ export async function trainModel(
     batchSize,
     validationSplit,
     shuffle: true,
-    callbacks: [
-      onEpochEnd,
-      tf.callbacks.earlyStopping({ monitor: 'val_loss', patience: 10 }),
-    ],
+    callbacks: [onEpochEnd],
   });
 
   // Avaliar no conjunto de teste separado
