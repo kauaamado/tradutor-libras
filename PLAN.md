@@ -72,14 +72,14 @@ O sistema será dividido em 4 módulos principais, seguindo Clean Architecture:
 
 **Objetivo:** Juntar a visão com o modelo treinado para traduzir ao vivo.
 
-* [ ] Criar módulo `modules/inference/signClassifier.ts` e hook `useClassifier.ts`.
-* [ ] Carregar o modelo TF.js do IndexedDB uma única vez na inicialização.
-* [ ] Criar hook `useHandTracking.ts` que expõe landmarks em tempo real via `requestAnimationFrame`.
-* [ ] Para cada frame com mão detectada, extrair landmarks, formatar como tensor e prever a classe.
-* [ ] Renderizar componente `DetectionBadge.tsx` com a palavra prevista sobreposta ao feed.
-* [ ] Implementar lógica de debounce: uma palavra só é confirmada após ser prevista consistentemente por X frames consecutivos.
-* [ ] Manter fila de palavras detectadas (`useReducer` ou `useState`).
-* [ ] **Spec de Aceitação:** O sistema deve exibir a palavra correta de forma estável quando o usuário fizer um dos sinais treinados na Fase 2.
+* [x] Criar módulo `modules/inference/signClassifier.ts` e hook `useClassifier.ts`.
+* [x] Carregar o modelo TF.js do IndexedDB uma única vez na inicialização.
+* [x] Criar hook `useHandTracking.ts` que expõe landmarks em tempo real via `requestAnimationFrame`.
+* [x] Para cada frame com mão detectada, extrair landmarks, formatar como tensor e prever a classe.
+* [x] Renderizar componente `DetectionBadge.tsx` com a palavra prevista sobreposta ao feed.
+* [x] Implementar lógica de debounce: uma palavra só é confirmada após ser prevista consistentemente por X frames consecutivos.
+* [x] Manter fila de palavras detectadas (`useReducer` ou `useState`).
+* [x] **Spec de Aceitação:** O sistema deve exibir a palavra correta de forma estável quando o usuário fizer um dos sinais treinados na Fase 2.
 
 ### Fase 5: Integração com LLM (Transformers.js) para Frases
 
