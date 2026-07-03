@@ -1,26 +1,35 @@
-import { useWebcam } from '@/hooks/useWebcam';
-import { useHandTracking } from '@/hooks/useHandTracking';
-import { useClassifier } from '@/hooks/useClassifier';
 import { HandCanvas } from '@/components/HandCanvas';
+import type { HandTrackingResult, ClassificationResult } from '@/types/hand';
+
+interface WebcamViewProps {
+  videoRef: React.RefObject<HTMLVideoElement | null>;
+  isActive: boolean;
+  isStarting: boolean;
+  error: string | null;
+  trackingResult: HandTrackingResult | null;
+  isReady: boolean;
+  trackingError: string | null;
+  confirmed: ClassificationResult;
+  current: ClassificationResult;
+  onToggleCamera: () => void;
+}
 
 /**
- * Componente que gerencia a captura de vídeo da webcam + canvas overlay.
- * Exibe controle para iniciar/parar a webcam e faz cleanup ao desmontar.
+ * Componente que gerencia a exibição do feed da webcam + canvas overlay.
+ * Recebe estado e callbacks como props (hooks gerenciados pelo App.tsx).
  */
-export function WebcamView() {
-  const { videoRef, isActive, isStarting, error, start, stop } = useWebcam();
-  const { result, isReady, error: trackingError } = useHandTracking(videoRef, isActive);
-  const { confirmed, current } = useClassifier(result);
-
-  const handleCameraToggle = () => {
-    if (isActive || isStarting) {
-      stop();
-      return;
-    }
-
-    void start();
-  };
-
+export function WebcamView({
+  videoRef,
+  isActive,
+  isStarting,
+  error,
+  trackingResult,
+  isReady,
+  trackingError,
+  confirmed,
+  current,
+  onToggleCamera,
+}: WebcamViewProps) {
   return (
     <section className="camera-shell" aria-label="Área de tradução por webcam">
       <div className="camera-frame">
@@ -31,7 +40,7 @@ export function WebcamView() {
           muted
           className="webcam-video"
         />
-        <HandCanvas trackingResult={result} videoRef={videoRef} />
+        <HandCanvas trackingResult={trackingResult} videoRef={videoRef} />
 
         {!isActive && !isStarting && (
           <div className="camera-placeholder" aria-live="polite">
@@ -56,8 +65,8 @@ export function WebcamView() {
           {error && <p className="status-error">Erro: {error}</p>}
           {isActive && !isReady && !trackingError && <p>Carregando MediaPipe...</p>}
           {trackingError && <p className="status-error">Erro MediaPipe: {trackingError}</p>}
-          {isActive && isReady && result && <p>Mãos: {result.landmarks.length}</p>}
-          {isActive && isReady && !result && <p>Nenhuma mão detectada</p>}
+          {isActive && isReady && trackingResult && <p>Mãos: {trackingResult.landmarks.length}</p>}
+          {isActive && isReady && !trackingResult && <p>Nenhuma mão detectada</p>}
         </div>
       </div>
 
@@ -69,7 +78,7 @@ export function WebcamView() {
         <button
           className="primary-button"
           type="button"
-          onClick={handleCameraToggle}
+          onClick={onToggleCamera}
           disabled={isStarting}
           aria-pressed={isActive}
         >
