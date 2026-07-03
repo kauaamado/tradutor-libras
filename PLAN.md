@@ -100,11 +100,11 @@ O sistema será dividido em 4 módulos principais, seguindo Clean Architecture:
 
 **Objetivo:** Publicar a aplicação para acesso público.
 
-* [ ] Criar workflow GitHub Actions (`.github/workflows/deploy.yml`) para build e deploy automático.
-* [ ] Workflow: `npm ci` → `npm run build` → upload `dist/` para GitHub Pages.
-* [ ] Verificar que `vite.config.ts` tem `base: '/tradutor-libras/'` para servir assets corretamente no subpath.
-* [ ] Configurar `HashRouter` ou página 404 customizada para SPA routing no Pages.
-* [ ] **Spec de Aceitação:** A aplicação deve carregar completamente em `https://<usuario>.github.io/tradutor-libras/`, com webcam, MediaPipe, TF.js e Transformers.js funcionais em ambiente de produção.
+* [x] Criar workflow GitHub Actions (`.github/workflows/deploy.yml`) para build e deploy automático.
+* [x] Workflow: `npm install --ignore-scripts` → `npm run build` → upload `dist/` para GitHub Pages via `actions/deploy-pages@v4`.
+* [x] Verificar que `vite.config.ts` tem `base: '/tradutor-libras/'` para servir assets corretamente no subpath.
+* [x] Configurar `public/.nojekyll` + `actions/configure-pages@v5` (app single-page sem client-side routing, dispensa 404.html).
+* [x] **Spec de Aceitação:** A aplicação deve carregar completamente em `https://kauaamado.github.io/tradutor-libras/`, com webcam, MediaPipe, TF.js e Transformers.js funcionais em ambiente de produção.
 
 ---
 
