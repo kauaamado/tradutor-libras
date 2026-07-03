@@ -47,26 +47,26 @@ O sistema será dividido em 4 módulos principais, seguindo Clean Architecture:
 
 **Objetivo:** Permitir que o usuário grave exemplos de sinais.
 
-* [ ] Criar módulo `modules/training/dataCollector.ts` para gerenciar gravação de landmarks.
-* [ ] Criar UI de gravação: botão "Iniciar Gravação" + input de label (componentes React, não `input()` de terminal).
-* [ ] Capturar N frames consecutivos da mão, extraindo as coordenadas X, Y, Z de todos os 21 pontos (63 valores numéricos).
-* [ ] Salvar as coordenadas em IndexedDB, onde cada entrada contém os 63 valores + a label (string).
-* [ ] Permitir exportar dataset como JSON (arquivo `.json` baixável).
-* [ ] **Spec de Aceitação:** O dataset deve ser persistido no IndexedDB contendo entradas com 63 valores numéricos (21 pontos * 3 eixos) mais a string da label, sem dados nulos.
+* [x] Criar módulo `modules/training/dataCollector.ts` para gerenciar gravação de landmarks.
+* [x] Criar UI de gravação: botão "Iniciar Gravação" + input de label (componentes React, não `input()` de terminal).
+* [x] Capturar N frames consecutivos da mão, extraindo as coordenadas X, Y, Z de todos os 21 pontos (63 valores numéricos).
+* [x] Salvar as coordenadas em IndexedDB, onde cada entrada contém os 63 valores + a label (string).
+* [x] Permitir exportar dataset como JSON (arquivo `.json` baixável).
+* [x] **Spec de Aceitação:** O dataset deve ser persistido no IndexedDB contendo entradas com 63 valores numéricos (21 pontos * 3 eixos) mais a string da label, sem dados nulos.
 
 ### Fase 3: Treinamento do Modelo de Machine Learning (TF.js)
 
 **Objetivo:** Criar o classificador que entende os sinais estáticos.
 
-* [ ] Criar módulo `modules/training/modelTrainer.ts`.
-* [ ] Carregar dados do IndexedDB e preparar tensores (features: 63 valores, labels: one-hot encoded).
-* [ ] Dividir os dados em treino e teste (80/20).
-* [ ] Criar modelo TF.js Sequential: camada de entrada (63) → Dense(128, ReLU) → Dropout(0.3) → Dense(N classes, softmax).
-* [ ] Treinar com `model.fit()`, exibindo perda e acurácia no console.
-* [ ] Avaliar no conjunto de teste e exibir acurácia no componente de UI.
-* [ ] Salvar o modelo em IndexedDB via `model.save('indexeddb://sign-model')`.
-* [ ] Suportar exportação do modelo como arquivos JSON + binários.
-* [ ] **Spec de Aceitação:** O treino deve rodar do início ao fim, exibir acurácia superior a 85% e salvar o modelo corretamente no IndexedDB.
+* [x] Criar módulo `modules/training/modelTrainer.ts`.
+* [x] Carregar dados do IndexedDB e preparar tensores (features: 63 valores, labels: one-hot encoded).
+* [x] Dividir os dados em treino e teste (80/20).
+* [x] Criar modelo TF.js Sequential: camada de entrada (63) → Dense(128, ReLU) → Dropout(0.3) → Dense(N classes, softmax).
+* [x] Treinar com `model.fit()`, exibindo perda e acurácia no console.
+* [x] Avaliar no conjunto de teste e exibir acurácia no componente de UI.
+* [x] Salvar o modelo em IndexedDB via `model.save('indexeddb://sign-model')`.
+* [x] Suportar exportação do modelo como arquivos JSON + binários.
+* [x] **Spec de Aceitação:** O treino deve rodar do início ao fim, exibir acurácia superior a 85% e salvar o modelo corretamente no IndexedDB.
 
 ### Fase 4: Inferência em Tempo Real
 

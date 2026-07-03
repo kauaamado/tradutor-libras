@@ -29,6 +29,7 @@ export function DataCollectorPanel({ trackingResult, isActive, isReady }: DataCo
     cancelCollecting,
     clearData,
     exportData,
+    refreshStats,
   } = useDataset(trackingResult);
 
   const canCollect =
@@ -113,6 +114,39 @@ export function DataCollectorPanel({ trackingResult, isActive, isReady }: DataCo
         <button type="button" className="primary-button" onClick={exportData} disabled={totalSamples === 0}>
           Exportar JSON
         </button>
+        <label className="primary-button collector-import-label">
+          Importar JSON
+          <input
+            type="file"
+            accept=".json"
+            className="collector-import-input"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onload = () => {
+                try {
+                  const json = JSON.parse(reader.result as string);
+                  const entries = json.entries ?? json.samples ?? json;
+                  if (!Array.isArray(entries)) throw new Error('Formato inválido');
+                  void import('@/modules/training/dataCollector').then(
+                    ({ importDataset }) =>
+                      importDataset(entries).then(() => {
+                        console.info('[DataCollector] Importação concluída:', entries.length, 'entradas.');
+                        refreshStats();
+                      }),
+                  );
+                } catch (err) {
+                  console.error('[DataCollector] Erro ao importar JSON:', err);
+                  alert('Erro ao importar arquivo. Verifique o formato JSON.');
+                }
+              };
+              reader.readAsText(file);
+              // Reset input para permitir reimportar o mesmo arquivo
+              e.target.value = '';
+            }}
+          />
+        </label>
         <button type="button" className="primary-button collector-danger" onClick={handleClear} disabled={totalSamples === 0}>
           Limpar dados ({totalSamples})
         </button>
