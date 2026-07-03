@@ -20,7 +20,7 @@ function areIndexMiddleSpread(landmarks: HandLandmarks): boolean {
 
 /**
  * Verifica se indicador e médio estão cruzados (letra R).
- * Cruza se a ponta do indicador está à direita da do médio (em mão direita).
+ * Cruza se as pontas estão próximas em X e a ordem Y das pontas é inversa à ordem Y das PIPs.
  */
 function areIndexMiddleCrossed(landmarks: HandLandmarks): boolean {
   const indexTip = landmarks[8];
@@ -29,8 +29,9 @@ function areIndexMiddleCrossed(landmarks: HandLandmarks): boolean {
   const middlePip = landmarks[10];
   if (!indexTip || !middleTip || !indexPip || !middlePip) return false;
 
-  // Se cruzaram, a ordem X das pontas é inversa à ordem X das PIPs
-  // Threshold relaxado de 0.05 para 0.15 para detectar cruzamento real
+  // Pontas próximas em X (cruzadas horizontalmente)
+  // Ordem Y das pontas é inversa à ordem Y das PIPs (cruzamento vertical)
+  // Threshold de 0.15 para detectar cruzamento real
   return Math.abs(indexTip.x - middleTip.x) < 0.15 &&
     (indexTip.y - middleTip.y) * (indexPip.y - middlePip.y) < 0;
 }
@@ -65,6 +66,9 @@ function isThumbBetweenIndexMiddle(landmarks: HandLandmarks): boolean {
   return thumbTip.y >= minY && thumbTip.y <= maxY;
 }
 
+/** Resultado nulo quando não há detecção. */
+const NULL_RESULT: ClassificationResult = { label: null, confidence: 0 };
+
 /**
  * Classifica um sinal estático de LIBRAS a partir dos 21 landmarks.
  * Suporta letras do alfabeto manual (A-Z, exceto dinâmicas: G, H, J, K, P, Q, Z).
@@ -73,6 +77,11 @@ function isThumbBetweenIndexMiddle(landmarks: HandLandmarks): boolean {
  * @returns Letra detectada ou null se não reconhecido.
  */
 export function classifySign(landmarks: HandLandmarks): ClassificationResult {
+  // Defense-in-depth: requer exatamente 21 landmarks válidos
+  if (landmarks.length !== 21) {
+    return NULL_RESULT;
+  }
+
   const f = getFingerStates(landmarks);
 
   // --- GRUPO 1: DEDOS ÚNICOS (muito específicos) ---
@@ -201,5 +210,5 @@ export function classifySign(landmarks: HandLandmarks): ClassificationResult {
   }
 
   // Não reconhecido
-  return { label: null, confidence: 0 };
+  return NULL_RESULT;
 }

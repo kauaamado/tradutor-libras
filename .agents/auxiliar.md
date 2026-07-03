@@ -31,6 +31,7 @@ Antes de qualquer ação, leia e siga os documentos de especificação do projet
    - `npm run format` para formatar com Prettier
 5. **Commits** em PT-BR no formato Conventional Commits: `feat(escopo): descrição`.
 6. **Nunca fazer PR direto para `main`.** Sempre via `dev`.
+7. **Sempre usar squash and merge** ao mergear PRs para manter histórico linear.
 
 ## Regras de domínio críticas
 

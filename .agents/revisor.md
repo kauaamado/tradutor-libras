@@ -42,6 +42,7 @@ Para cada arquivo ou PR analisado, verifique:
 
 - Formato Conventional Commits em PT-BR: `feat|fix|refactor|docs|test(escopo): descrição`.
 - Branch `feat/*` criada a partir de `dev`.
+- PRs devem ser mergeados com **squash and merge** para manter histórico linear.
 
 ### Fases (SDD)
 

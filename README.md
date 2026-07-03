@@ -51,22 +51,22 @@ tradutor-libras/
 │   ├── components/          # Componentes React (UI)
 │   │   ├── WebcamView.tsx
 │   │   ├── HandCanvas.tsx
-│   │   ├── DetectionBadge.tsx
-│   │   ├── PhraseDisplay.tsx
-│   │   ├── LanguageSelector.tsx
-│   │   └── ControlBar.tsx
+│   │   └── AlphabetCheatSheet.tsx
 │   ├── modules/            # Módulos de domínio (Clean Architecture)
 │   │   ├── capture/        # Wrapper do HandLandmarker (MediaPipe)
-│   │   ├── training/       # Coleta de dataset + treino TF.js
-│   │   ├── inference/      # Classificador de sinais em tempo real
-│   │   └── nlp/            # Cliente Transformers.js (LLM in-browser)
-│   ├── hooks/              # Custom hooks (useHandTracking, useClassifier, etc.)
+│   │   │   └── handTracker.ts
+│   │   └── inference/      # Classificador heurístico de sinais
+│   │       ├── fingerStates.ts
+│   │       └── signClassifier.ts
+│   ├── hooks/              # Custom hooks (useWebcam, useHandTracking, useClassifier)
 │   ├── types/              # Tipos TypeScript
+│   │   └── hand.ts
 │   ├── App.tsx
 │   ├── main.tsx
 │   └── index.css
 ├── public/
-│   └── wasm/               # Assets WASM do MediaPipe + modelos TF.js
+│   └── images/             # Imagens estáticas (cola do alfabeto)
+├── .agents/                # Definições de agentes OpenCode
 ├── AGENTS.md               # Regras de operação do agente IA
 ├── PLAN.md                 # Plano de implementação em fases
 ├── specs.md                # Especificações técnicas
@@ -79,7 +79,7 @@ tradutor-libras/
 
 ## Deploy no GitHub Pages
 
-O deploy é feito automaticamente via GitHub Actions ao fazer push na branch `main`.
+O deploy será configurado na Fase 6 do plano (GitHub Actions).
 
 Para deploy manual:
 
