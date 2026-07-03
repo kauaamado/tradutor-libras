@@ -15,11 +15,6 @@ export default defineConfig({
   server: {
     port: 5173,
   },
-  // Transformers.js usa imports dinâmicos internos (onnxruntime-web, tokenizers)
-  // que o Vite não deve pre-bundleizar.
-  optimizeDeps: {
-    exclude: ['@huggingface/transformers'],
-  },
   test: {
     globals: true,
     environment: 'node',
