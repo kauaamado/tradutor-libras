@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useWebcam } from '@/hooks/useWebcam';
 import { useHandTracking } from '@/hooks/useHandTracking';
 import { useClassifier } from '@/hooks/useClassifier';
+import { useTranslator } from '@/hooks/useTranslator';
 import { HandCanvas } from '@/components/HandCanvas';
 import type { HandTrackingResult } from '@/types/hand';
 
@@ -12,7 +13,8 @@ interface WebcamViewProps {
 
 /**
  * Componente que gerencia a captura de vídeo da webcam + canvas overlay.
- * Mantém seus próprios hooks (useWebcam, useHandTracking, useClassifier).
+ * Mantém seus próprios hooks (useWebcam, useHandTracking, useClassifier,
+ * useTranslator).
  */
 export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
   const { videoRef, isActive, isStarting, error, start, stop } = useWebcam();
@@ -22,6 +24,15 @@ export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
   );
   const { confirmed, current, mode, wordQueue, clearQueue } =
     useClassifier(result);
+  const {
+    status: tlStatus,
+    frase,
+    downloadProgress,
+    error: tlError,
+    webgpuAvailable,
+    translate,
+    clear: clearFrase,
+  } = useTranslator();
 
   // Notifica o pai sobre mudanças no trackingResult (para DataCollectorPanel).
   useEffect(() => {
@@ -34,6 +45,11 @@ export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
       return;
     }
     void start();
+  };
+
+  const handleClear = () => {
+    clearQueue();
+    clearFrase();
   };
 
   return (
@@ -85,6 +101,11 @@ export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
                 : mode === 'heuristic'
                   ? 'Heurístico'
                   : 'Carregando...'}
+              {!webgpuAvailable && (
+                <span className="status-webgpu-off">
+                  {' · '}Sem WebGPU (frase heurística)
+                </span>
+              )}
             </p>
           )}
           {isActive && isReady && !result && <p>Nenhuma mão detectada</p>}
@@ -92,12 +113,33 @@ export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
       </div>
 
       <div className="phrase-display" aria-live="polite">
-        <p>
-          Frase:{' '}
-          {wordQueue.length > 0
-            ? wordQueue.join(' ')
-            : 'aguardando sinais'}
-        </p>
+        {tlStatus === 'loading' && (
+          <p className="phrase-loading">
+            Baixando modelo... {downloadProgress}%
+          </p>
+        )}
+        {tlStatus === 'translating' && (
+          <p className="phrase-loading">Gerando frase...</p>
+        )}
+        {frase && (
+          <p className="phrase-result">
+            Frase: <strong>{frase}</strong>
+          </p>
+        )}
+        {!frase && tlStatus !== 'loading' && tlStatus !== 'translating' && (
+          <p>
+            Frase:{' '}
+            {wordQueue.length > 0
+              ? wordQueue.join(' ')
+              : 'aguardando sinais'}
+          </p>
+        )}
+        {tlError && !frase && (
+          <p className="status-error">{tlError}</p>
+        )}
+        {tlStatus === 'fallback' && (
+          <p className="phrase-fallback">(frase gerada sem IA — WebGPU indisponível)</p>
+        )}
       </div>
 
       <div
@@ -121,8 +163,26 @@ export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
         <button
           className="primary-button"
           type="button"
-          onClick={clearQueue}
-          disabled={wordQueue.length === 0}
+          onClick={() => {
+            void translate(wordQueue);
+          }}
+          disabled={
+            wordQueue.length === 0 ||
+            tlStatus === 'loading' ||
+            tlStatus === 'translating'
+          }
+        >
+          {tlStatus === 'loading'
+            ? `Baixando... ${downloadProgress}%`
+            : tlStatus === 'translating'
+              ? 'Traduzindo...'
+              : 'Traduzir'}
+        </button>
+        <button
+          className="primary-button"
+          type="button"
+          onClick={handleClear}
+          disabled={wordQueue.length === 0 && !frase}
         >
           Limpar
         </button>
