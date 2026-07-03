@@ -331,6 +331,117 @@ button {
   color: var(--color-error);
 }
 
+/* --- DataCollectorPanel --- */
+
+.collector-panel {
+  width: min(100%, 860px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: var(--color-page-soft);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+}
+
+.collector-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.collector-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.collector-total {
+  font-size: 0.85rem;
+  color: var(--color-loading);
+}
+
+.collector-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.collector-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.collector-select {
+  min-width: 5rem;
+  padding: 0.45rem 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: var(--color-page);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.collector-recording {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.collector-recording p {
+  font-size: 0.95rem;
+}
+
+.collector-progress {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  accent-color: var(--color-loading);
+}
+
+.collector-cancel {
+  background: var(--color-error) !important;
+  box-shadow: none !important;
+}
+
+.collector-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.collector-danger {
+  background: var(--color-error) !important;
+  box-shadow: none !important;
+}
+
+.collector-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.collector-stat-item {
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  background: var(--color-surface-soft);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.collector-hint {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+}
+
 @media (max-width: 640px) {
   .app-header {
     width: 100%;
