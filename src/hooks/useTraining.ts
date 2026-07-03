@@ -1,4 +1,5 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import type * as tf from '@tensorflow/tfjs';
 
 import type { TrainingProgress, TrainingResult, ModelInfo } from '@/types/model';
 import {
@@ -49,8 +50,9 @@ export function useTraining(): UseTrainingReturn {
   const [modelInfo, setModelInfo] = useState<ModelInfo>(loadModelMetadata);
   const [error, setError] = useState<string | null>(null);
 
-  // Guarda referência ao modelo para exportação posterior
-  const [trainedModel, setTrainedModel] = useState<ReturnType<typeof createModel> | null>(null);
+  // Guarda referência ao modelo para exportação posterior (ref, não state —
+  // TF.js LayersModel não é serializável e quebra o React se colocado em state).
+  const trainedModelRef = useRef<tf.LayersModel | null>(null);
 
   /** Verifica se há modelo salvo no IndexedDB. */
   const checkModel = useCallback(() => {
@@ -116,7 +118,7 @@ export function useTraining(): UseTrainingReturn {
 
       setResult(trainingResult);
       setModelInfo(loadModelMetadata());
-      setTrainedModel(model);
+      trainedModelRef.current = model;
       setModelStatus('trained');
 
       console.info(
@@ -136,10 +138,12 @@ export function useTraining(): UseTrainingReturn {
   /** Exporta o modelo treinado. */
   const exportModel = useCallback(async () => {
     try {
-      const model = trainedModel ?? (await loadModel());
+      const model = trainedModelRef.current ?? (await loadModel());
       if (!model) {
         throw new Error('Nenhum modelo treinado para exportar.');
       }
+      // Atualiza a ref se carregou do IndexedDB
+      trainedModelRef.current ??= model;
       const info = loadModelMetadata();
       await exportTfModel(model, info.labels);
     } catch (err) {
@@ -147,7 +151,7 @@ export function useTraining(): UseTrainingReturn {
       setError(msg);
       console.error('[useTraining] Erro na exportação:', msg);
     }
-  }, [trainedModel]);
+  }, []);
 
   return {
     modelStatus,

@@ -7,12 +7,7 @@ function fmtAcc(v: number): string {
   return (v * 100).toFixed(1) + '%';
 }
 
-interface TrainingPanelProps {
-  /** Callback disparado após treino concluído com sucesso. */
-  onModelTrained?: () => void;
-}
-
-export function TrainingPanel({ onModelTrained }: TrainingPanelProps) {
+export function TrainingPanel() {
   const {
     modelStatus,
     isTraining,
@@ -89,11 +84,7 @@ export function TrainingPanel({ onModelTrained }: TrainingPanelProps) {
           type="button"
           className="primary-button"
           onClick={() => {
-            void train().then(() => {
-              // Só chama onModelTrained se o treino foi bem‑sucedido
-              // (modelStatus muda para 'trained' dentro de train)
-              onModelTrained?.();
-            });
+            void train();
           }}
           disabled={isTraining}
         >
