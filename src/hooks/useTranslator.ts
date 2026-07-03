@@ -21,6 +21,11 @@ interface UseTranslatorReturn {
   webgpuAvailable: boolean;
   /** Dispara a tradução das palavras. */
   translate: (words: string[]) => Promise<void>;
+  /**
+   * Tradução simples — força fallback heurístico mesmo com WebGPU disponível.
+   * Útil quando o usuário opta por não baixar o modelo LLM.
+   */
+  translateSimple: (words: string[]) => void;
   /** Limpa a frase e reseta o estado. */
   clear: () => void;
 }
@@ -107,6 +112,14 @@ export function useTranslator(): UseTranslatorReturn {
     setDownloadProgress(0);
   }, []);
 
+  /** Tradução simples — fallback heurístico forçado (sem LLM). */
+  const translateSimple = useCallback((words: string[]) => {
+    const result = heuristicTranslate(words);
+    setFrase(result.frase);
+    setStatus('fallback');
+    console.info('[useTranslator] Tradução simples:', result.frase);
+  }, []);
+
   return {
     status,
     frase,
@@ -114,6 +127,7 @@ export function useTranslator(): UseTranslatorReturn {
     error,
     webgpuAvailable,
     translate,
+    translateSimple,
     clear,
   };
 }
