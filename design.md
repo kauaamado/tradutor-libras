@@ -37,6 +37,7 @@ A aplicação ocupa a viewport inteira com o feed da webcam como plano de fundo.
 | `App.tsx` | Container principal, estado global via Context | Inicialização, roteamento, providers |
 | `WebcamView.tsx` | Gerencia `<video>` element + `getUserMedia` | Iniciar/parar stream, limpar ao desmontar |
 | `HandCanvas.tsx` | Canvas overlay sobre o vídeo | Desenhar landmarks da mão, conexões, cores |
+| `AlphabetCheatSheet.tsx` | Cola do alfabeto manual em LIBRAS | Exibir imagem de referência do alfabeto |
 | `DetectionBadge.tsx` | Badge com a palavra detectada | Exibir palavra atual, debounce status |
 | `PhraseDisplay.tsx` | Área de frase traduzida | Exibir frase final, estado de carregamento |
 | `LanguageSelector.tsx` | Dropdown de idioma | Selecionar PT-BR / EN / ES |
@@ -66,6 +67,7 @@ src/
 ├── components/             # Camada de UI (React)
 │   ├── WebcamView.tsx
 │   ├── HandCanvas.tsx
+│   ├── AlphabetCheatSheet.tsx
 │   ├── DetectionBadge.tsx
 │   ├── PhraseDisplay.tsx
 │   ├── LanguageSelector.tsx

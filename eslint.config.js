@@ -19,7 +19,7 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': 'error',
-      'no-console': ['warn', { allow: ['info', 'warn', 'error'] }],
+      'no-console': ['error', { allow: ['info', 'warn', 'error'] }],
     },
   },
 );
