@@ -4,6 +4,7 @@ interface UseWebcamReturn {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   streamRef: React.RefObject<MediaStream | null>;
   isActive: boolean;
+  isStarting: boolean;
   error: string | null;
   start: () => Promise<void>;
   stop: () => void;
@@ -18,6 +19,7 @@ export function useWebcam(): UseWebcamReturn {
   const streamRef = useRef<MediaStream | null>(null);
   const mountedRef = useRef(true);
   const [isActive, setIsActive] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const stop = useCallback(() => {
@@ -30,12 +32,18 @@ export function useWebcam(): UseWebcamReturn {
       videoRef.current.srcObject = null;
     }
     if (mountedRef.current) {
+      setIsStarting(false);
       setIsActive(false);
     }
   }, []);
 
   const start = useCallback(async () => {
+    if (streamRef.current) {
+      return;
+    }
+
     setError(null);
+    setIsStarting(true);
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -58,6 +66,7 @@ export function useWebcam(): UseWebcamReturn {
 
       if (mountedRef.current) {
         setIsActive(true);
+        setIsStarting(false);
         console.info('[Webcam] Stream iniciado com sucesso.');
       }
     } catch (err) {
@@ -72,6 +81,7 @@ export function useWebcam(): UseWebcamReturn {
       const message = err instanceof Error ? err.message : 'Erro ao acessar webcam';
       console.error('[Webcam] Erro:', message);
       setError(message);
+      setIsStarting(false);
     }
   }, []);
 
@@ -84,5 +94,5 @@ export function useWebcam(): UseWebcamReturn {
     };
   }, [stop]);
 
-  return { videoRef, streamRef, isActive, error, start, stop };
+  return { videoRef, streamRef, isActive, isStarting, error, start, stop };
 }
