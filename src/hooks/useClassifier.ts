@@ -25,12 +25,10 @@ interface UseClassifierReturn {
  * Tenta carregar o modelo TF.js do IndexedDB; se disponível, usa-o.
  * Caso contrário, cai de volta para o classificador heurístico.
  *
- * Debounce: uma letra só é confirmada após DEBOUNCE_FRAMES consistentes.
- * Palavras confirmadas são acumuladas em wordQueue (fila para frases).
+ * @param trackingResult - Resultado do useHandTracking (landmarks em tempo real).
  */
 export function useClassifier(
   trackingResult: HandTrackingResult | null,
-  modelVersion = 0,
 ): UseClassifierReturn {
   // ═══ Estado do modelo TF.js (state, não ref — React 19 proíbe refs no render) ═══
   const [mode, setMode] = useState<ClassifierMode>('loading');
@@ -67,7 +65,7 @@ export function useClassifier(
     })();
 
     return () => { cancelled = true; };
-  }, [modelVersion]);
+  }, []); // Carrega apenas uma vez na montagem
 
   useEffect(() => () => {
     setTfModel((prev) => { prev?.dispose(); return null; });

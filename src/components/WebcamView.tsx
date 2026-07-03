@@ -8,27 +8,20 @@ import type { HandTrackingResult } from '@/types/hand';
 
 interface WebcamViewProps {
   onTrackingUpdate?: (result: HandTrackingResult | null) => void;
-  /** Versão do modelo — incrementar força recarga (pós‑treino). */
-  modelVersion?: number;
 }
 
 /**
  * Componente que gerencia a captura de vídeo da webcam + canvas overlay.
  * Mantém seus próprios hooks (useWebcam, useHandTracking, useClassifier).
  */
-export function WebcamView({
-  onTrackingUpdate,
-  modelVersion = 0,
-}: WebcamViewProps) {
+export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
   const { videoRef, isActive, isStarting, error, start, stop } = useWebcam();
   const { result, isReady, error: trackingError } = useHandTracking(
     videoRef,
     isActive,
   );
-  const { confirmed, current, mode, wordQueue, clearQueue } = useClassifier(
-    result,
-    modelVersion,
-  );
+  const { confirmed, current, mode, wordQueue, clearQueue } =
+    useClassifier(result);
 
   // Notifica o pai sobre mudanças no trackingResult (para DataCollectorPanel).
   useEffect(() => {
