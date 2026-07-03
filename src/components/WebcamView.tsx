@@ -1,14 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import { useWebcam } from '@/hooks/useWebcam';
 import { useHandTracking } from '@/hooks/useHandTracking';
 import { useClassifier } from '@/hooks/useClassifier';
 import { useTranslator } from '@/hooks/useTranslator';
 import { HandCanvas } from '@/components/HandCanvas';
-import { ConsentDialog } from '@/components/ConsentDialog';
 import type { HandTrackingResult } from '@/types/hand';
-
-const LLM_CONSENT_KEY = 'tradutor-libras-llm-consent';
 
 interface WebcamViewProps {
   onTrackingUpdate?: (result: HandTrackingResult | null) => void;
@@ -30,19 +27,10 @@ export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
   const {
     status: tlStatus,
     frase,
-    downloadProgress,
     error: tlError,
-    webgpuAvailable,
     translate,
-    translateSimple,
     clear: clearFrase,
   } = useTranslator();
-
-  // Consentimento para download do modelo LLM
-  const [consentGiven, setConsentGiven] = useState(() => {
-    return localStorage.getItem(LLM_CONSENT_KEY) === 'true';
-  });
-  const [showConsent, setShowConsent] = useState(false);
 
   // Notifica o pai sobre mudanças no trackingResult (para DataCollectorPanel).
   useEffect(() => {
@@ -57,50 +45,14 @@ export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
     void start();
   };
 
+  const handleTranslateClick = () => {
+    if (wordQueue.length === 0) return;
+    translate(wordQueue);
+  };
+
   const handleClear = () => {
     clearQueue();
     clearFrase();
-  };
-
-  /** Botão Traduzir — verifica consentimento antes de baixar o LLM. */
-  const handleTranslateClick = () => {
-    if (wordQueue.length === 0) return;
-
-    // Sem WebGPU → fallback direto, sem diálogo
-    if (!webgpuAvailable) {
-      void translate(wordQueue);
-      return;
-    }
-
-    // WebGPU disponível mas sem consentimento → mostrar diálogo
-    if (!consentGiven) {
-      setShowConsent(true);
-      return;
-    }
-
-    // Consentimento dado → prosseguir com LLM
-    void translate(wordQueue);
-  };
-
-  /** Usuário aceitou baixar o modelo LLM. */
-  const handleConsentAccept = () => {
-    localStorage.setItem(LLM_CONSENT_KEY, 'true');
-    setConsentGiven(true);
-    setShowConsent(false);
-    void translate(wordQueue);
-  };
-
-  /** Usuário prefere tradução simples sem IA. */
-  const handleConsentFallback = () => {
-    localStorage.setItem(LLM_CONSENT_KEY, 'true');
-    setConsentGiven(true);
-    setShowConsent(false);
-    translateSimple(wordQueue);
-  };
-
-  /** Usuário fechou o diálogo sem decidir — não salva consentimento. */
-  const handleConsentClose = () => {
-    setShowConsent(false);
   };
 
   return (
@@ -152,11 +104,6 @@ export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
                 : mode === 'heuristic'
                   ? 'Heurístico'
                   : 'Carregando...'}
-              {!webgpuAvailable && (
-                <span className="status-webgpu-off">
-                  {' · '}Sem WebGPU (frase heurística)
-                </span>
-              )}
             </p>
           )}
           {isActive && isReady && !result && <p>Nenhuma mão detectada</p>}
@@ -164,11 +111,6 @@ export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
       </div>
 
       <div className="phrase-display" aria-live="polite">
-        {tlStatus === 'loading' && (
-          <p className="phrase-loading">
-            Baixando modelo... {downloadProgress}%
-          </p>
-        )}
         {tlStatus === 'translating' && (
           <p className="phrase-loading">Gerando frase...</p>
         )}
@@ -177,7 +119,7 @@ export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
             Frase: <strong>{frase}</strong>
           </p>
         )}
-        {!frase && tlStatus !== 'loading' && tlStatus !== 'translating' && (
+        {!frase && tlStatus !== 'translating' && (
           <p>
             Frase:{' '}
             {wordQueue.length > 0
@@ -187,9 +129,6 @@ export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
         )}
         {tlError && !frase && (
           <p className="status-error">{tlError}</p>
-        )}
-        {tlStatus === 'fallback' && (
-          <p className="phrase-fallback">(frase gerada sem IA — WebGPU indisponível)</p>
         )}
       </div>
 
@@ -216,16 +155,10 @@ export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
           type="button"
           onClick={handleTranslateClick}
           disabled={
-            wordQueue.length === 0 ||
-            tlStatus === 'loading' ||
-            tlStatus === 'translating'
+            wordQueue.length === 0 || tlStatus === 'translating'
           }
         >
-          {tlStatus === 'loading'
-            ? `Baixando... ${downloadProgress}%`
-            : tlStatus === 'translating'
-              ? 'Traduzindo...'
-              : 'Traduzir'}
+          {tlStatus === 'translating' ? 'Traduzindo...' : 'Traduzir'}
         </button>
         <button
           className="primary-button"
@@ -236,13 +169,6 @@ export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
           Limpar
         </button>
       </div>
-
-      <ConsentDialog
-        open={showConsent}
-        onAccept={handleConsentAccept}
-        onFallback={handleConsentFallback}
-        onClose={handleConsentClose}
-      />
     </section>
   );
 }

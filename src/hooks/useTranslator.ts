@@ -1,133 +1,60 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 
-import type { TranslatorStatus, DownloadProgress } from '@/types/translation';
-import {
-  detectWebGPU,
-  heuristicTranslate,
-  loadLLM,
-  translateWithLLM,
-} from '@/modules/nlp/llmClient';
+import type { TranslatorStatus } from '@/types/translation';
+import { heuristicTranslate } from '@/modules/nlp/llmClient';
 
 interface UseTranslatorReturn {
-  /** Status atual (idle, loading, translating, ready, etc.). */
+  /** Status atual. */
   status: TranslatorStatus;
-  /** Frase traduzida (resultado final). */
+  /** Frase traduzida. */
   frase: string;
-  /** Progresso do download do modelo (0-100 estimado). */
-  downloadProgress: number;
   /** Mensagem de erro, se houver. */
   error: string | null;
-  /** Se WebGPU está disponível. */
-  webgpuAvailable: boolean;
-  /** Dispara a tradução das palavras. */
-  translate: (words: string[]) => Promise<void>;
-  /**
-   * Tradução simples — força fallback heurístico mesmo com WebGPU disponível.
-   * Útil quando o usuário opta por não baixar o modelo LLM.
-   */
-  translateSimple: (words: string[]) => void;
+  /** Dispara a tradução heurística das palavras. */
+  translate: (words: string[]) => void;
   /** Limpa a frase e reseta o estado. */
   clear: () => void;
 }
 
 /**
- * Hook que gerencia a tradução de palavras → frase via LLM (Transformers.js).
- *
- * No primeiro uso, baixa o modelo (~500MB). Downloads subsequentes usam cache.
- * Fallback heurístico se WebGPU indisponível.
+ * Hook que gerencia a tradução heurística de palavras → frase.
+ * Sem dependência de IA externa ou downloads.
  */
 export function useTranslator(): UseTranslatorReturn {
   const [status, setStatus] = useState<TranslatorStatus>('idle');
   const [frase, setFrase] = useState('');
-  const [downloadProgress, setDownloadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
-  const webgpuAvailable = detectWebGPU();
+  const translate = useCallback((words: string[]) => {
+    if (words.length === 0) return;
 
-  // Pipeline carregado (ref para evitar re-render)
-  const generatorRef = useRef<unknown>(null);
-  const loadedRef = useRef(false);
-
-  /** Inicia a tradução. */
-  const translate = useCallback(
-    async (words: string[]) => {
-      if (words.length === 0) return;
-
+    try {
       setError(null);
+      setStatus('translating');
+      setFrase('');
 
-      // Sem WebGPU → heurístico imediato
-      if (!webgpuAvailable) {
-        console.info(
-          '[useTranslator] WebGPU indisponível — usando fallback heurístico.',
-        );
-        const result = heuristicTranslate(words);
-        setFrase(result.frase);
-        setStatus('fallback');
-        return;
-      }
+      const result = heuristicTranslate(words);
+      setFrase(result.frase);
+      setStatus('ready');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro ao gerar frase.';
+      setError(msg);
+      setStatus('error');
+      console.error('[useTranslator] Erro:', msg);
+    }
+  }, []);
 
-      try {
-        // Carregar modelo (só na primeira vez)
-        if (!loadedRef.current) {
-          setStatus('loading');
-          setDownloadProgress(0);
-
-          generatorRef.current = await loadLLM((p: DownloadProgress) => {
-            // Estimar progresso total
-            if (p.progress !== undefined) {
-              setDownloadProgress(Math.round(p.progress));
-            }
-          });
-
-          loadedRef.current = true;
-        }
-
-        // Gerar frase
-        setStatus('translating');
-        setFrase('');
-
-        const result = await translateWithLLM(generatorRef.current, words);
-        setFrase(result.frase);
-        setStatus('ready');
-      } catch (err) {
-        const msg =
-          err instanceof Error ? err.message : 'Erro ao gerar frase.';
-        setError(msg);
-        setStatus('error');
-        console.error('[useTranslator] Erro:', msg);
-
-        // Fallback heurístico em caso de erro
-        const fallback = heuristicTranslate(words);
-        setFrase(fallback.frase);
-      }
-    },
-    [webgpuAvailable],
-  );
-
-  /** Reseta o estado. */
   const clear = useCallback(() => {
     setStatus('idle');
     setFrase('');
     setError(null);
-    setDownloadProgress(0);
-  }, []);
-
-  /** Tradução simples — fallback heurístico forçado (sem LLM). */
-  const translateSimple = useCallback((words: string[]) => {
-    const result = heuristicTranslate(words);
-    setFrase(result.frase);
-    setStatus('fallback');
-    console.info('[useTranslator] Tradução simples:', result.frase);
   }, []);
 
   return {
     status,
     frase,
-    downloadProgress,
     error,
-    webgpuAvailable,
     translate,
-    translateSimple,
     clear,
   };
 }
