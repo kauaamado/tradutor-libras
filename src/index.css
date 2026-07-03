@@ -442,6 +442,12 @@ button {
   text-align: center;
 }
 
+/* Sobrescreve o cursor de loading do primary-button desabilitado no painel */
+.collector-panel .primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 @media (max-width: 640px) {
   .app-header {
     width: 100%;
