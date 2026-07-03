@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { DatasetStats } from '@/types/dataset';
-import type { HandTrackingResult } from '@/types/hand';
+import type { HandTrackingResult, HandLandmarks } from '@/types/hand';
 import {
   flattenLandmarks,
   isValidForCollection,
@@ -15,12 +15,29 @@ import {
 /** Número de frames a coletar por amostra. */
 const FRAMES_PER_SAMPLE = 15;
 
+/** Preferência de mão para coleta. */
+export type HandPreference = 'right' | 'left';
+
+/** Encontra os landmarks da mão especificada no resultado do rastreador. */
+function getHandByPreference(
+  result: HandTrackingResult,
+  preference: HandPreference,
+): HandLandmarks | null {
+  for (let i = 0; i < result.handedness.length; i++) {
+    const side = result.handedness[i].toLowerCase();
+    if (side === preference) {
+      return result.landmarks[i] ?? null;
+    }
+  }
+  return null;
+}
+
 interface UseDatasetReturn {
   stats: DatasetStats[];
   isCollecting: boolean;
   frameProgress: number;
   collectingLabel: string | null;
-  startCollecting: (label: string) => void;
+  startCollecting: (label: string, hand: HandPreference) => void;
   cancelCollecting: () => void;
   refreshStats: () => void;
   clearData: () => void;
@@ -30,6 +47,7 @@ interface UseDatasetReturn {
 /**
  * Hook para coleta de dados de treinamento.
  * Acumula FRAMES_PER_SAMPLE frames, calcula a mediana e salva no IndexedDB.
+ * Suporta seleção de mão direita ou esquerda via handedness do MediaPipe.
  *
  * @param trackingResult - Resultado do useHandTracking (landmarks em tempo real).
  */
@@ -41,6 +59,7 @@ export function useDataset(trackingResult: HandTrackingResult | null): UseDatase
 
   const bufferRef = useRef<number[][]>([]);
   const labelRef = useRef<string>('');
+  const handRef = useRef<HandPreference>('right');
 
   const refreshStats = useCallback(() => {
     void getDatasetStats().then(setStats);
@@ -55,16 +74,14 @@ export function useDataset(trackingResult: HandTrackingResult | null): UseDatase
   useEffect(() => {
     if (!isCollecting || !trackingResult || trackingResult.landmarks.length === 0) return;
 
-    const hand = trackingResult.landmarks[0];
-
-    if (!isValidForCollection(hand)) return;
+    const hand = getHandByPreference(trackingResult, handRef.current);
+    if (!hand || !isValidForCollection(hand)) return;
 
     const flat = flattenLandmarks(hand);
     bufferRef.current.push(flat);
     setFrameProgress(bufferRef.current.length);
 
     if (bufferRef.current.length >= FRAMES_PER_SAMPLE) {
-      // Coletou frames suficientes: calcula mediana e salva
       const medianFeatures = computeMedianLandmarks(bufferRef.current);
       void saveSample(medianFeatures, labelRef.current).then(() => {
         console.info('[Dataset] Amostra salva para label:', labelRef.current);
@@ -77,13 +94,14 @@ export function useDataset(trackingResult: HandTrackingResult | null): UseDatase
     }
   }, [isCollecting, trackingResult, refreshStats]);
 
-  const startCollecting = useCallback((label: string) => {
+  const startCollecting = useCallback((label: string, hand: HandPreference) => {
     bufferRef.current = [];
     labelRef.current = label;
+    handRef.current = hand;
     setFrameProgress(0);
     setIsCollecting(true);
     setCollectingLabel(label);
-    console.info('[Dataset] Iniciando coleta para label:', label);
+    console.info('[Dataset] Iniciando coleta para label:', label, 'mão:', hand);
   }, []);
 
   const cancelCollecting = useCallback(() => {

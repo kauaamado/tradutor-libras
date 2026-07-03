@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { COLLECTABLE_LETTERS, useDataset } from '@/hooks/useDataset';
+import type { HandPreference } from '@/hooks/useDataset';
 import type { HandTrackingResult } from '@/types/hand';
 
 interface DataCollectorPanelProps {
@@ -9,8 +10,15 @@ interface DataCollectorPanelProps {
   isReady: boolean;
 }
 
+/** Descrição amigável para cada preferência de mão. */
+const HAND_OPTIONS: { value: HandPreference; label: string }[] = [
+  { value: 'right', label: 'Direita' },
+  { value: 'left', label: 'Esquerda' },
+];
+
 export function DataCollectorPanel({ trackingResult, isActive, isReady }: DataCollectorPanelProps) {
   const [selectedLabel, setSelectedLabel] = useState<string>(COLLECTABLE_LETTERS[0]);
+  const [selectedHand, setSelectedHand] = useState<HandPreference>('right');
 
   const {
     stats,
@@ -23,11 +31,22 @@ export function DataCollectorPanel({ trackingResult, isActive, isReady }: DataCo
     exportData,
   } = useDataset(trackingResult);
 
-  const canCollect = !isCollecting && trackingResult !== null && trackingResult.landmarks.length > 0;
+  const canCollect =
+    !isCollecting &&
+    trackingResult !== null &&
+    trackingResult.landmarks.length > 0;
+
   const totalSamples = stats.reduce((sum, s) => sum + s.count, 0);
 
   const handleCollect = () => {
-    startCollecting(selectedLabel);
+    const prefix = selectedHand === 'right' ? 'D' : 'E';
+    startCollecting(`${prefix}_${selectedLabel}`, selectedHand);
+  };
+
+  const handleClear = () => {
+    if (confirm('Tem certeza que deseja limpar todos os dados coletados? Esta ação não pode ser desfeita.')) {
+      clearData();
+    }
   };
 
   return (
@@ -58,7 +77,22 @@ export function DataCollectorPanel({ trackingResult, isActive, isReady }: DataCo
             >
               {COLLECTABLE_LETTERS.map((letter) => (
                 <option key={letter} value={letter}>
-                  {letter} ({stats.find((s) => s.label === letter)?.count ?? 0})
+                  {letter} ({stats.filter((s) => s.label.endsWith(`_${letter}`)).reduce((sum, s) => sum + s.count, 0)})
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="collector-label">
+            Mão:
+            <select
+              className="collector-select"
+              value={selectedHand}
+              onChange={(e) => setSelectedHand(e.target.value as HandPreference)}
+            >
+              {HAND_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
                 </option>
               ))}
             </select>
@@ -70,21 +104,19 @@ export function DataCollectorPanel({ trackingResult, isActive, isReady }: DataCo
             onClick={handleCollect}
             disabled={!canCollect}
           >
-            Gravar {selectedLabel}
+            Gravar {selectedLabel} ({selectedHand === 'right' ? 'Dir.' : 'Esq.'})
           </button>
         </div>
       )}
 
-      {totalSamples > 0 && (
-        <div className="collector-actions">
-          <button type="button" className="primary-button" onClick={exportData}>
-            Exportar JSON
-          </button>
-          <button type="button" className="primary-button collector-danger" onClick={clearData}>
-            Limpar dados
-          </button>
-        </div>
-      )}
+      <div className="collector-actions">
+        <button type="button" className="primary-button" onClick={exportData} disabled={totalSamples === 0}>
+          Exportar JSON
+        </button>
+        <button type="button" className="primary-button collector-danger" onClick={handleClear} disabled={totalSamples === 0}>
+          Limpar dados ({totalSamples})
+        </button>
+      </div>
 
       {stats.length > 0 && (
         <div className="collector-stats" aria-label="Estatísticas de coleta">
@@ -94,7 +126,6 @@ export function DataCollectorPanel({ trackingResult, isActive, isReady }: DataCo
             .map((s) => (
               <span key={s.label} className="collector-stat-item">
                 {s.label}: {s.count}
-                {s.label === selectedLabel ? ' ←' : ''}
               </span>
             ))}
         </div>
@@ -110,7 +141,12 @@ export function DataCollectorPanel({ trackingResult, isActive, isReady }: DataCo
         <p className="collector-hint">Posicione a mão na frente da câmera.</p>
       )}
       {isActive && isReady && trackingResult && trackingResult.landmarks.length > 0 && !isCollecting && (
-        <p className="collector-hint" style={{ color: '#00cc00' }}>Mão detectada. Clique em Gravar.</p>
+        <p className="collector-hint" style={{ color: '#00cc00' }}>
+          {trackingResult.handedness.length > 1
+            ? 'Duas mãos detectadas.'
+            : `Mão ${trackingResult.handedness[0] === 'Right' ? 'direita' : 'esquerda'} detectada.`}{' '}
+          Clique em Gravar.
+        </p>
       )}
     </section>
   );
