@@ -44,3 +44,4 @@ coverage/
 
 # Dataset local (não commitar dados coletados)
 dataset-*.json
+!dataset-libras-1783090215089.json

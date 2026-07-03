@@ -1,6 +1,6 @@
 # Tradutor-LIBRAS
 
-Aplicação web estática que captura gestos em LIBRAS via webcam, reconhece sinais com Visão Computacional (MediaPipe) e Machine Learning (TensorFlow.js), e converte a sequência de sinais em frases naturais em português utilizando um LLM no navegador (Transformers.js).
+Aplicação web estática que captura gestos em LIBRAS via webcam, reconhece sinais com Visão Computacional (MediaPipe) e Machine Learning (TensorFlow.js), e converte a sequência de sinais em frases em português.
 
 ## Stack
 
@@ -10,9 +10,8 @@ Aplicação web estática que captura gestos em LIBRAS via webcam, reconhece sin
 | Build | Vite |
 | Visão Computacional | @mediapipe/tasks-vision (HandLandmarker via WASM) |
 | Machine Learning | TensorFlow.js (treino e inferência no browser) |
-| LLM | Transformers.js (modelo de texto via WebGPU) |
 | Persistência | IndexedDB (dataset de treino, modelo TF.js) |
-| Deploy | GitHub Pages |
+| Deploy | GitHub Pages (workflow automático) |
 
 ## Como Executar Localmente
 
@@ -20,12 +19,12 @@ Aplicação web estática que captura gestos em LIBRAS via webcam, reconhece sin
 
 - Node.js 18+
 - npm 9+
-- Navegador moderno com suporte WebGPU (Chrome 113+, Edge 113+) — obrigatório para o módulo de geração de frases
+- Navegador moderno (Chrome, Firefox, Edge, Safari)
 
 ### Instalação
 
 ```bash
-npm install
+npm install --ignore-scripts
 ```
 
 ### Desenvolvimento
@@ -43,6 +42,20 @@ npm run build        # gera dist/
 npm run preview      # preview local do build
 ```
 
+## Dataset de Exemplo
+
+O repositório inclui um dataset com **100 amostras** de sinais em LIBRAS (`dataset-libras-1783090215089.json`). Cobre 19 letras do alfabeto manual (A, B, C, D, E, F, I, L, M, N, O, R, S, T, U, V, W, X, Y), com amostras para mão direita (`D_`) e esquerda (`E_`).
+
+### Como usar
+
+1. Clone o repositório
+2. Inicie o app com `npm run dev`
+3. Clique em **"Mostrar ferramentas"** para expandir o painel avançado
+4. No painel **Coleta de Dados**, clique em **"Importar JSON"**
+5. Selecione o arquivo `dataset-libras-1783090215089.json`
+6. Vá ao painel **Treinamento** e clique em **"Treinar Modelo"**
+7. Após o treino, recarregue a página para usar o modelo TF.js
+
 ## Estrutura do Projeto
 
 ```
@@ -51,27 +64,28 @@ tradutor-libras/
 │   ├── components/          # Componentes React (UI)
 │   │   ├── WebcamView.tsx
 │   │   ├── HandCanvas.tsx
+│   │   ├── DataCollectorPanel.tsx
+│   │   ├── TrainingPanel.tsx
 │   │   └── AlphabetCheatSheet.tsx
 │   ├── modules/            # Módulos de domínio (Clean Architecture)
 │   │   ├── capture/        # Wrapper do HandLandmarker (MediaPipe)
-│   │   │   └── handTracker.ts
-│   │   └── inference/      # Classificador heurístico de sinais
-│   │       ├── fingerStates.ts
-│   │       └── signClassifier.ts
-│   ├── hooks/              # Custom hooks (useWebcam, useHandTracking, useClassifier)
+│   │   ├── inference/      # Classificadores (heurístico + TF.js)
+│   │   ├── training/       # Coleta de dados e treinamento TF.js
+│   │   └── nlp/            # Tradução heurística (palavras → frase)
+│   ├── hooks/              # Custom hooks (useWebcam, useHandTracking, etc.)
 │   ├── types/              # Tipos TypeScript
-│   │   └── hand.ts
 │   ├── App.tsx
 │   ├── main.tsx
 │   └── index.css
 ├── public/
 │   └── images/             # Imagens estáticas (cola do alfabeto)
+├── .github/workflows/      # CI + Deploy automático
+├── dataset-*.json          # Dataset de exemplo (100 amostras)
 ├── .agents/                # Definições de agentes OpenCode
 ├── AGENTS.md               # Regras de operação do agente IA
 ├── PLAN.md                 # Plano de implementação em fases
 ├── specs.md                # Especificações técnicas
 ├── design.md               # Design e convenções
-├── index.html
 ├── package.json
 ├── tsconfig.json
 └── vite.config.ts
@@ -79,16 +93,13 @@ tradutor-libras/
 
 ## Deploy no GitHub Pages
 
-O deploy será configurado na Fase 6 do plano (GitHub Actions).
+O deploy é automático via GitHub Actions. Todo push na branch `main` dispara o workflow `.github/workflows/deploy.yml`:
 
-Para deploy manual:
+1. `npm install --ignore-scripts`
+2. `npm run build`
+3. Deploy do `dist/` via `actions/deploy-pages@v4`
 
-```bash
-npm run build
-npx gh-pages -d dist
-```
-
-A aplicação é servida em `https://<seu-usuario>.github.io/tradutor-libras/`.
+A aplicação está disponível em **[https://kauaamado.github.io/tradutor-libras/](https://kauaamado.github.io/tradutor-libras/)**.
 
 ## Agentes OpenCode
 
