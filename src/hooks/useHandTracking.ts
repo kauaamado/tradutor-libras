@@ -39,6 +39,7 @@ export function useHandTracking(
   // Loop de detecção via requestAnimationFrame
   useEffect(() => {
     if (!isActive || !isReady || !videoRef.current) {
+      setResult(null);
       return;
     }
 

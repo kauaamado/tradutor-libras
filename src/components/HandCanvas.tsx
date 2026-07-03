@@ -75,15 +75,7 @@ export function HandCanvas({ trackingResult, videoRef }: HandCanvasProps) {
   return (
     <canvas
       ref={canvasRef}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none',
-        transform: 'scaleX(-1)', // espelhar para acompanhar o vídeo
-      }}
+      className="hand-canvas"
     />
   );
 }
