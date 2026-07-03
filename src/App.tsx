@@ -20,7 +20,11 @@ export function App() {
       <AlphabetCheatSheet />
       <main className="app-main">
         <WebcamView onTrackingUpdate={handleTrackingUpdate} />
-        <DataCollectorPanel trackingResult={trackingResult} isActive={trackingResult !== null} isReady={true} />
+        <DataCollectorPanel
+          trackingResult={trackingResult}
+          isActive={trackingResult !== null}
+          isReady={true}
+        />
       </main>
     </div>
   );
