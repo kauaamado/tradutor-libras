@@ -1,5 +1,3 @@
-import { useEffect, useCallback } from 'react';
-
 import { useWebcam } from '@/hooks/useWebcam';
 import { useHandTracking } from '@/hooks/useHandTracking';
 import { useClassifier } from '@/hooks/useClassifier';
@@ -19,20 +17,18 @@ export function WebcamView({ onTrackingUpdate }: WebcamViewProps) {
   const { result, isReady, error: trackingError } = useHandTracking(videoRef, isActive);
   const { confirmed, current } = useClassifier(result);
 
-  // Notifica o pai sobre mudanças no trackingResult via efeito (NÃO durante render)
-  useEffect(() => {
-    if (onTrackingUpdate) {
-      onTrackingUpdate(result);
-    }
-  }, [result, onTrackingUpdate]);
+  // Notifica o pai sobre mudanças no trackingResult (para DataCollectorPanel)
+  if (onTrackingUpdate) {
+    onTrackingUpdate(result);
+  }
 
-  const handleCameraToggle = useCallback(() => {
+  const handleCameraToggle = () => {
     if (isActive || isStarting) {
       stop();
       return;
     }
     void start();
-  }, [isActive, isStarting, start, stop]);
+  };
 
   return (
     <section className="camera-shell" aria-label="Área de tradução por webcam">
