@@ -85,16 +85,16 @@ O sistema será dividido em 4 módulos principais, seguindo Clean Architecture:
 
 **Objetivo:** Transformar sinais isolados em uma frase natural.
 
-* [ ] Criar módulo `modules/nlp/llmClient.ts` e hook `useTranslator.ts`.
-* [ ] Implementar detecção de suporte WebGPU (`navigator.gpu`).
-* [ ] Se WebGPU disponível, carregar modelo de texto via Transformers.js (`pipeline('text-generation', ...)`).
-* [ ] Exibir indicador de carregamento (spinner + barra de progresso) durante download do modelo (~500MB-1GB).
-* [ ] Se WebGPU indisponível, exibir aviso e ativar modo heurístico de fallback (montagem de frase por template SVO).
-* [ ] Criar gatilho para finalizar a frase (botão "Traduzir" na UI ou tecla Enter).
-* [ ] Quando o gatilho for acionado, montar prompt e passar para o pipeline do Transformers.js.
-* [ ] **Prompt Base:** `"Você é um tradutor de LIBRAS. Transforme as seguintes palavras extraídas de sinais em uma frase fluente, natural e gramaticalmente correta em {idioma}. Retorne APENAS a frase traduzida, sem explicações. Palavras: {lista_palavras}"`.
-* [ ] Exibir a frase final no componente `PhraseDisplay.tsx`.
-* [ ] **Spec de Aceitação:** O sistema deve receber um array de strings estáticas, processar via Transformers.js e retornar uma frase contínua e correta em português.
+* [x] Criar módulo `modules/nlp/llmClient.ts` e hook `useTranslator.ts`.
+* [x] Implementar detecção de suporte WebGPU (`navigator.gpu`).
+* [x] Se WebGPU disponível, carregar modelo de texto via Transformers.js (`pipeline('text-generation', ...)`).
+* [x] Exibir indicador de carregamento (spinner + barra de progresso) durante download do modelo (~500MB-1GB).
+* [x] Se WebGPU indisponível, exibir aviso e ativar modo heurístico de fallback (montagem de frase por template SVO).
+* [x] Criar gatilho para finalizar a frase (botão "Traduzir" na UI ou tecla Enter).
+* [x] Quando o gatilho for acionado, montar prompt e passar para o pipeline do Transformers.js.
+* [x] **Prompt Base:** `"Você é um tradutor de LIBRAS. Transforme as seguintes palavras extraídas de sinais em uma frase fluente, natural e gramaticalmente correta em {idioma}. Retorne APENAS a frase traduzida, sem explicações. Palavras: {lista_palavras}"`.
+* [x] Exibir a frase final no componente `PhraseDisplay.tsx`.
+* [x] **Spec de Aceitação:** O sistema deve receber um array de strings estáticas, processar via Transformers.js e retornar uma frase contínua e correta em português.
 
 ### Fase 6: Deploy no GitHub Pages
 
